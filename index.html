@@ -1,0 +1,92 @@
+
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>CampGroundz</title>
+    <style>
+        html,body{height:100%;margin:0;background:#000;overflow:hidden}
+        canvas{display:block}
+        .panel{
+            position:fixed;
+            inset:0;
+            display:flex;
+            flex-direction:column;
+            align-items:center;
+            justify-content:center;
+            color:#8cff8c;
+            font-family:monospace;
+            z-index:2;
+            opacity:0.95;
+            text-align:center;
+        }
+        .panel h1{margin:0;font-size:20px}
+        .panel p{margin:6px 0 0 0;font-size:12px}
+    </style>
+</head>
+<body>
+    <div class="panel">
+<h1>CampGroundz</h1>
+<p>Sign up for exclusive access to our Rogue Events</p>
+ 
+    </div>
+    <canvas id="matrix"></canvas>
+    <script>
+        const canvas = document.getElementById('matrix');
+        const ctx = canvas.getContext('2d');
+        let w, h, columns, drops, fontSize;
+        let running = false;
+        let animId = null;
+        // lower = slower. Typical range: 0.15 - 1
+        let speed = 0.2;
+
+        const letters = 'アァカサタナハマヤャラワガザダバパイィキシチニヒミリギジヂビピウゥクスツヌフムユュルグズヅブプエェケセテネヘメレゲゼデベペオォコソトノホモヨョロ0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+
+        function resize(){
+            w = canvas.width = innerWidth;
+            h = canvas.height = innerHeight;
+            fontSize = Math.max(12, Math.floor(w / 80));
+            columns = Math.floor(w / fontSize);
+            drops = new Array(columns).fill(1);
+        }
+
+        window.addEventListener('resize', resize);
+        resize();
+
+        function draw(){
+            ctx.fillStyle = 'rgba(0,0,0,0.06)';
+            ctx.fillRect(0,0,w,h);
+            ctx.font = fontSize + 'px monospace';
+            for(let i=0;i<columns;i++){
+                const char = letters.charAt(Math.floor(Math.random() * letters.length));
+                const x = i * fontSize;
+                const y = drops[i] * fontSize;
+                ctx.fillStyle = (Math.random() > 0.92) ? '#ffffff' : (i % 2 === 0 ? '#8cff8c' : '#00ff00');
+                ctx.fillText(char, x, y);
+                if(y > h && Math.random() > 0.975) drops[i] = 0;
+                drops[i] += speed;
+            }
+            animId = requestAnimationFrame(draw);
+        }
+
+        const panel = document.querySelector('.panel');
+        function start(){
+            if(running) return;
+            running = true;
+            animId = requestAnimationFrame(draw);
+        }
+        function stop(){
+            if(!running) return;
+            running = false;
+            if(animId) cancelAnimationFrame(animId);
+        }
+
+        // Toggle on click anywhere
+        document.addEventListener('click', (e)=>{
+            // avoid toggling when interacting with future controls (if any)
+            if(running) stop(); else start();
+        });
+    </script>
+</body>
+</html>
